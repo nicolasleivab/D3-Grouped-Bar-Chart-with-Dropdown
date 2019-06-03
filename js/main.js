@@ -141,8 +141,6 @@ var dropSelector = d3.select("#drop") //dropdown change selection
               var xFilter = ['Movement', 'minM', 'avgM'];;
             }
   
-        
-        x0.domain(data.map(function(d) { return d.level; }));
         x1.domain(xFilter).range([0, x0.bandwidth()]);
 
 
@@ -167,9 +165,11 @@ dropSelector.selectAll("option")
         return d;
       })
 
+x0.domain(data.map(function(d) { return d.level; }));
+
 
 //Call X Axis
-var xAxisCall = d3.axisBottom(x);
+var xAxisCall = d3.axisBottom(x0);
     xAxisApp.transition(t).call(xAxisCall).selectAll("text") 
             .style("text-anchor", "end")
             .attr("dx", "-.8em")
