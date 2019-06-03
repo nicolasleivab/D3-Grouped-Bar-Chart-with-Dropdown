@@ -143,12 +143,29 @@ var dropSelector = d3.select("#drop") //dropdown change selection
   
         
         x0.domain(data.map(function(d) { return d.level; }));
-        x1.domain(xFilter).rangeRoundBands([0, x0.rangeBand()]);
+        x1.domain(xFilter).range([0, x0.bandwidth()]);
 
 
 
 
 
+
+
+
+
+
+});
+
+//Get values for the dropdown (instructions)
+    dropSelector.selectAll("option")
+      .data(instructions)
+      .enter().append("option")
+      .attr("value", function(d){
+        return d;
+      })
+      .text(function(d){
+        return d;
+      })
 
 
 
