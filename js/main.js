@@ -143,7 +143,42 @@ var dropSelector = d3.select("#drop") //dropdown change selection
   
         x1.domain(xFilter).range([0, x0.bandwidth()]);
 
-        d3.selectAll("g.y.axis")  //changing from selectAll to select fixed the conflict between charts
+//* Actual D3 update func *//
+
+// Join new with old data.
+var rects = g.selectAll("rect")
+    .data(data, function(d){
+        return d.level;
+        });
+
+// Exit old elements.
+rects.exit()
+    .attr("fill", z)
+    .transition(t)
+    .attr("y", y(0))
+    .attr("height", 0)
+    .remove();
+
+// Enter new elements.
+rects.enter()
+
+        .append("rect")
+            .attr("fill", function(d) { return z(d.key); })
+            .attr("y", y(0))
+            .attr("height", 0)
+            .attr("x", function(d){ return x1(xFilter)})
+            .attr("width", x1.bandwidth)
+            // AND UPDATE old elements present in new data.
+            .merge(rects)
+            .transition(t)
+                .attr("x", function(d){ return x0(d.level) })
+                .attr("width", x0.bandwidth)
+                .attr("y", function(d){ return y(d[selected.value]); })
+                .attr("height", function(d){ return height - y(d[selected.value]); });
+
+
+
+        d3.selectAll("g.y.axis")  //Changing from selectAll to select can fix the conflict between several simultonaeous charts 
                 .transition()
                 .call(yAxisCall);
 
