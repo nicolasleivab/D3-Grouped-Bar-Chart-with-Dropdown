@@ -143,10 +143,11 @@ var dropSelector = d3.select("#drop") //dropdown change selection
   
         x1.domain(xFilter).range([0, x0.bandwidth()]);
 
+        d3.selectAll("g.y.axis")  //changing from selectAll to select fixed the conflict between charts
+                .transition()
+                .call(yAxisCall);
 
-
-
-
+                 yLabel.text(selected.value);
 
 
 
