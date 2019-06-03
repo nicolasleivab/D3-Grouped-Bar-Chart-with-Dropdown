@@ -9,7 +9,7 @@ function init() {
 
 //** D3.js code **//
 
-// Filter and format data
+//* Filter and format data *//
  var data = data.filter(function(d){return d.ID == '10574525';});
 
     data.forEach(function(d) {
@@ -30,6 +30,11 @@ function init() {
         d.avgM = +d.avgM;
 
     });
+
+ var instructions = ['Functions', 'Loops', 'Cycles', 'Movement', 'PickDrop'];
+
+ var selected = instructions[0];
+ 
 
 //*Chart code*//
 
@@ -64,6 +69,47 @@ var x1 = d3.scaleBand();
 var y = d3.scaleLinear()
     .range([height, 0]);
 
+// Color scheme
+
+var color = d3.scaleOrdinal(d3.schemePastel1);
+
+
+// X and Y Labels
+
+var xLabel = g.append("text")
+    .attr("y", height + 50)
+    .attr("x", width / 2)
+    .attr("font-size", "20px")
+    .attr("text-anchor", "middle")
+    .attr("transform", "translate(" + margin.left + ", " + margin.top +  ")")
+    .text("Level");
+
+var yLabel = g.append("text")
+    .attr("y", -60)
+    .attr("x", -(height / 2))
+    .attr("font-size", "20px")
+    .attr("text-anchor", "middle")
+    .attr("transform", "rotate(-90)")
+    .text("Rounds");
+
+//Run visualization for the first time
+update(data);
+
+//*Update Function*//
+
+function update(data){
+
+var dropSelector = d3.select("#drop") //dropdown change selection
+    .append("select")
+    .attr("id","dropdown")
+    .on("change", function(d){
+         selected = document.getElementById("dropdown");
+            y.domain([0, d3.max(data, function(d){return +d[selected.value];})]);
+                console.log(selected.value);
+
+
+
+}
 
 //** end of D3.js code **//
 
