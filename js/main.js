@@ -10,7 +10,7 @@ function init() {
 //** D3.js code **//
 
 //* Filter and format data *//
- var data = data.filter(function(d){return d.ID == '10574525';});
+var data = data.filter(function(d){return d.ID == '10574525';});
 
     data.forEach(function(d) {
         d.Functions = +d.Functions;
@@ -31,10 +31,10 @@ function init() {
 
     });
 
- var instructions = ['Functions', 'Loops', 'Cycles', 'Movement', 'PickDrop'];
+var instructions = ['Functions', 'Loops', 'Cycles', 'Movement', 'PickDrop'];
 
- var selected = instructions[0];
- 
+var selected = instructions[0];
+
 
 //*Chart code*//
 
@@ -59,7 +59,6 @@ var yAxisApp = g.append("g")
     .attr("class", "y axis");
 
 //X and Y scales
-
 var x0 = d3.scaleBand()
     .range([0, width])
     .padding(0.2)
@@ -70,8 +69,10 @@ var y = d3.scaleLinear()
     .range([height, 0]);
 
 // Color scheme
+var z = d3.scaleOrdinal(d3.schemePastel1);
 
-var color = d3.scaleOrdinal(d3.schemePastel1);
+//Transition
+var t = d3.transition().duration(750);
 
 
 // X and Y Labels
@@ -106,6 +107,48 @@ var dropSelector = d3.select("#drop") //dropdown change selection
          selected = document.getElementById("dropdown");
             y.domain([0, d3.max(data, function(d){return +d[selected.value];})]);
                 console.log(selected.value);
+
+            
+
+            if(selected.value == 'Loops'){
+              var minLmax = d3.max(data, function(d) { return d.minL; })
+              var avgLmax = d3.max(data, function(d) { return d.avgL; })
+              y.domain([0, d3.max(data, function(d) { return d[selected.value] + avgLmax + minLmax;})]);
+              var xFilter = ['Loops', 'minL', 'avgL'];
+            }
+            else if(selected.value == 'Functions'){
+              var minFmax = d3.max(data, function(d) { return d.minF; })
+              var avgFmax = d3.max(data, function(d) { return d.avgF; })
+              y.domain([0, d3.max(data, function(d) { return d[selected.value] + avgFmax + minFmax;})]);
+              var xFilter = ['Functions', 'minF', 'avgF'];
+            }
+            else if(selected.value == 'Cycles'){
+              var minCmax = d3.max(data, function(d) { return d.minC; })
+              var avgCmax = d3.max(data, function(d) { return d.avgC; })
+              y.domain([0, d3.max(data, function(d) { return d[selected.value] + avgCmax + minCmax;})]);
+              var xFilter = ['Cycles', 'minC', 'avgC'];;
+            }
+            else if(selected.value == 'PickDrop'){
+              var minPmax = d3.max(data, function(d) { return d.minP; })
+              var avgPmax = d3.max(data, function(d) { return d.avgP; })
+              y.domain([0, d3.max(data, function(d) { return d[selected.value] + avgPmax + minPmax;})]);
+              var xFilter = ['PickDrop', 'minP', 'avgP'];;
+            }
+            else if(selected.value == 'Movement'){
+              var minMmax = d3.max(data, function(d) { return d.minM; })
+              var avgMmax = d3.max(data, function(d) { return d.avgM; })
+              y.domain([0, d3.max(data, function(d) { return d[selected.value] + avgMmax + minMmax;})]);
+              var xFilter = ['Movement', 'minM', 'avgM'];;
+            }
+  
+        
+        x0.domain(data.map(function(d) { return d.level; }));
+        x1.domain(xFilter).rangeRoundBands([0, x0.rangeBand()]);
+
+
+
+
+
 
 
 
