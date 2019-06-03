@@ -157,7 +157,7 @@ var dropSelector = d3.select("#drop") //dropdown change selection
 });
 
 //Get values for the dropdown (instructions)
-    dropSelector.selectAll("option")
+dropSelector.selectAll("option")
       .data(instructions)
       .enter().append("option")
       .attr("value", function(d){
@@ -166,6 +166,21 @@ var dropSelector = d3.select("#drop") //dropdown change selection
       .text(function(d){
         return d;
       })
+
+
+//Call X Axis
+var xAxisCall = d3.axisBottom(x);
+    xAxisApp.transition(t).call(xAxisCall).selectAll("text") 
+            .style("text-anchor", "end")
+            .attr("dx", "-.8em")
+            .attr("dy", ".15em")
+            .attr("transform", "rotate(-40)" 
+                );;;
+
+// Call Y Axis
+var yAxisCall = d3.axisLeft(y)
+        .tickFormat(function(d){ return d; });
+        yAxisApp.transition(t).call(yAxisCall);
 
 
 
