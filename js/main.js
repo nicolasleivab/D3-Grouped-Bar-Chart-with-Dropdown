@@ -38,15 +38,13 @@ var selected = instructions[0];
 
 //*Chart code*//
 
-var margin = { left:80, right:20, top:50, bottom:100 };
-var width = 800 - margin.left - margin.right,
-    height = 350 - margin.top - margin.bottom;
-
-var g = d3.select("#chart")
-    .append("svg")
-        .attr("width", width + margin.left + margin.right)
+var svg = d3.select("#chart"),
+    margin = {top: 20, right: 120, bottom: 100, left: 100},
+    width = 1200 - margin.left - margin.right,
+    height = 400 - margin.top - margin.bottom,
+    g = svg.append("svg").attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom)
-    .append("g")
+        .append("g")
         .attr("transform", "translate(" + margin.left + ", " + margin.top + ")");
 
 //Append and class for each axis to reuse later
@@ -109,38 +107,29 @@ var dropSelector = d3.select("#drop") //dropdown change selection
     .attr("id","dropdown")
     .on("change", function(d){
          selected = document.getElementById("dropdown");
-            y.domain([0, d3.max(data, function(d){return +d[selected.value];})]);
+           
                 console.log(selected.value);
 
             
 
             if(selected.value == 'Loops'){
-              var xFilter = ['Loops', 'minL', 'avgL'];
-              x1.domain(xFilter).rangeRound([0, x0.bandwidth()]);
-              y.domain([0, d3.max(data, function(d) { return d3.max(keys, function(key) { return d[key]; }); })]).nice();
+              var xFilter = ['Loops', 'minL', 'avgL']; 
             }
             else if(selected.value == 'Functions'){
               var xFilter = ['Functions', 'minF', 'avgF'];
-              x1.domain(xFilter).rangeRound([0, x0.bandwidth()]);
-              y.domain([0, d3.max(data, function(d) { return d3.max(xFilter, function(key) { return d[key]; }); })]).nice();
             }
             else if(selected.value == 'Cycles'){
               var xFilter = ['Cycles', 'minC', 'avgC'];
-              x1.domain(xFilter).rangeRound([0, x0.bandwidth()]);
-              y.domain([0, d3.max(data, function(d) { return d3.max(xFilter, function(key) { return d[key]; }); })]).nice();
             }
             else if(selected.value == 'PickDrop'){
               var xFilter = ['PickDrop', 'minP', 'avgP'];
-              x1.domain(xFilter).rangeRound([0, x0.bandwidth()]);
-              y.domain([0, d3.max(data, function(d) { return d3.max(xFilter, function(key) { return d[key]; }); })]).nice();
             }
             else if(selected.value == 'Movement'){
-              vvar xFilter = ['Movement', 'minM', 'avgM'];
-              x1.domain(xFilter).rangeRound([0, x0.bandwidth()]);
-              y.domain([0, d3.max(data, function(d) { return d3.max(xFilter, function(key) { return d[key]; }); })]).nice();
+              var xFilter = ['Movement', 'minM', 'avgM'];
             }
   
-        
+        x1.domain(xFilter).rangeRound([0, x0.bandwidth()]);
+        y.domain([0, d3.max(data, function(d) { return d3.max(xFilter, function(key) { return d[key]; }); })]).nice(); 
 
 //* Actual D3 update func *//
 
@@ -152,31 +141,35 @@ var rects = g.selectAll("rect")
 
 // Exit old elements.
 rects.exit()
-    .attr("fill", z)
+    .attr("fill", 'none')
     .transition(t)
     .attr("y", y(0))
     .attr("height", 0)
     .remove();
 
 // Enter new elements.
-rects.enter()
-
-        .append("rect")
-            .attr("fill", function(d) { return z(xFilter); })
-            .attr("y", y(0))
-            .attr("height", 0)
-            .attr("x", function(d){ return x1(xFilter)})
-            .style("fill", function(d) { return z(xFilter) })
-            .attr("width", x1.bandwidth)
-            // AND UPDATE old elements present in new data.
-            .merge(rects)
+g.append("g")
+            .selectAll("g")
+            .data(data)
+        rects.enter()
+            .append("g")
+            .attr("class","bar")
+            .attr("transform", function(d) { return "translate(" + x0(d.level) + ",0)"; })
+            .selectAll("rect")
+            .data(function(d) { return xFilter.map(function(key) { return {key: key, value: d[key]}; }); })
+            .enter().append("rect")
+            .attr("x", function(d) { return x1(d.key); })
+            .attr("y", function(d) { return y(d.value); })
+            .attr("width", x1.bandwidth())
+        .merge(rects)
             .transition(t)
-                .attr("x", function(d){ return x0(d.level) })
-                .attr("width", x0.bandwidth)
-                .attr("y", function(d){ return y(d[selected.value]); })
-                .attr("height", function(d){ return height - y(d[selected.value]); });
+            .attr("height", function(d) { return height - y(d.value); })
+            .attr("fill", function(d) { return z(d.key); })
+            .attr("width", x1.bandwidth());
 
-console.log(xFilter);
+console.log(data);
+console.log(selected.value);
+
 
         d3.selectAll("g.y.axis")  //Changing from selectAll to select can fix the conflict between several simultonaeous charts 
                 .transition()
