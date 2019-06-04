@@ -39,7 +39,7 @@ var selected = instructions[0];
 //*Chart code*//
 
 var margin = { left:80, right:20, top:50, bottom:100 };
-var width = 600 - margin.left - margin.right,
+var width = 800 - margin.left - margin.right,
     height = 350 - margin.top - margin.bottom;
 
 var g = d3.select("#chart")
@@ -61,9 +61,13 @@ var yAxisApp = g.append("g")
 //X and Y scales
 var x0 = d3.scaleBand()
     .range([0, width])
-    .padding(0.2)
+    .padding(0.3);
 
-var x1 = d3.scaleBand();
+var xFilter;
+
+var x1 = d3.scaleBand()
+    .range([0, x0.bandwidth() - 5])
+    .padding(0.2);
 
 var y = d3.scaleLinear()
     .range([height, 0]);
@@ -111,37 +115,32 @@ var dropSelector = d3.select("#drop") //dropdown change selection
             
 
             if(selected.value == 'Loops'){
-              var minLmax = d3.max(data, function(d) { return d.minL; })
-              var avgLmax = d3.max(data, function(d) { return d.avgL; })
-              y.domain([0, d3.max(data, function(d) { return d[selected.value] + avgLmax + minLmax;})]);
               var xFilter = ['Loops', 'minL', 'avgL'];
+              x1.domain(xFilter).rangeRound([0, x0.bandwidth()]);
+              y.domain([0, d3.max(data, function(d) { return d3.max(keys, function(key) { return d[key]; }); })]).nice();
             }
             else if(selected.value == 'Functions'){
-              var minFmax = d3.max(data, function(d) { return d.minF; })
-              var avgFmax = d3.max(data, function(d) { return d.avgF; })
-              y.domain([0, d3.max(data, function(d) { return d[selected.value] + avgFmax + minFmax;})]);
               var xFilter = ['Functions', 'minF', 'avgF'];
+              x1.domain(xFilter).rangeRound([0, x0.bandwidth()]);
+              y.domain([0, d3.max(data, function(d) { return d3.max(xFilter, function(key) { return d[key]; }); })]).nice();
             }
             else if(selected.value == 'Cycles'){
-              var minCmax = d3.max(data, function(d) { return d.minC; })
-              var avgCmax = d3.max(data, function(d) { return d.avgC; })
-              y.domain([0, d3.max(data, function(d) { return d[selected.value] + avgCmax + minCmax;})]);
-              var xFilter = ['Cycles', 'minC', 'avgC'];;
+              var xFilter = ['Cycles', 'minC', 'avgC'];
+              x1.domain(xFilter).rangeRound([0, x0.bandwidth()]);
+              y.domain([0, d3.max(data, function(d) { return d3.max(xFilter, function(key) { return d[key]; }); })]).nice();
             }
             else if(selected.value == 'PickDrop'){
-              var minPmax = d3.max(data, function(d) { return d.minP; })
-              var avgPmax = d3.max(data, function(d) { return d.avgP; })
-              y.domain([0, d3.max(data, function(d) { return d[selected.value] + avgPmax + minPmax;})]);
-              var xFilter = ['PickDrop', 'minP', 'avgP'];;
+              var xFilter = ['PickDrop', 'minP', 'avgP'];
+              x1.domain(xFilter).rangeRound([0, x0.bandwidth()]);
+              y.domain([0, d3.max(data, function(d) { return d3.max(xFilter, function(key) { return d[key]; }); })]).nice();
             }
             else if(selected.value == 'Movement'){
-              var minMmax = d3.max(data, function(d) { return d.minM; })
-              var avgMmax = d3.max(data, function(d) { return d.avgM; })
-              y.domain([0, d3.max(data, function(d) { return d[selected.value] + avgMmax + minMmax;})]);
-              var xFilter = ['Movement', 'minM', 'avgM'];;
+              vvar xFilter = ['Movement', 'minM', 'avgM'];
+              x1.domain(xFilter).rangeRound([0, x0.bandwidth()]);
+              y.domain([0, d3.max(data, function(d) { return d3.max(xFilter, function(key) { return d[key]; }); })]).nice();
             }
   
-        x1.domain(xFilter).range([0, x0.bandwidth()]);
+        
 
 //* Actual D3 update func *//
 
@@ -163,10 +162,11 @@ rects.exit()
 rects.enter()
 
         .append("rect")
-            .attr("fill", function(d) { return z(d.key); })
+            .attr("fill", function(d) { return z(xFilter); })
             .attr("y", y(0))
             .attr("height", 0)
             .attr("x", function(d){ return x1(xFilter)})
+            .style("fill", function(d) { return z(xFilter) })
             .attr("width", x1.bandwidth)
             // AND UPDATE old elements present in new data.
             .merge(rects)
@@ -176,7 +176,7 @@ rects.enter()
                 .attr("y", function(d){ return y(d[selected.value]); })
                 .attr("height", function(d){ return height - y(d[selected.value]); });
 
-
+console.log(xFilter);
 
         d3.selectAll("g.y.axis")  //Changing from selectAll to select can fix the conflict between several simultonaeous charts 
                 .transition()
